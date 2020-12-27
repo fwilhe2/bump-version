@@ -55,13 +55,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__webpack_require__(186));
 const h = __importStar(__webpack_require__(925));
+const process_1 = __webpack_require__(765);
 const bump_1 = __webpack_require__(466);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const repo = core.getInput('repo');
+            console.log('xx');
+            console.log(process_1.env.GITHUB_REPOSITORY);
             const _h = new h.HttpClient('foobar');
-            const response = yield _h.get(`https://api.github.com/repos/${repo}/releases/latest`);
+            const response = yield _h.get(`https://api.github.com/repos/${process_1.env.GITHUB_REPOSITORY}/releases/latest`);
             const body = yield response.readBody();
             const obj = JSON.parse(body);
             const currentVersion = obj.tag_name;
@@ -1420,6 +1423,14 @@ module.exports = require("os");;
 
 "use strict";
 module.exports = require("path");;
+
+/***/ }),
+
+/***/ 765:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("process");;
 
 /***/ }),
 
