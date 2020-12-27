@@ -1,11 +1,14 @@
 import * as core from '@actions/core'
 import * as h from '@actions/http-client'
+import { env } from 'process'
 import {bump} from './bump'
 
 async function run(): Promise<void> {
   try {
     const repo: string = core.getInput('repo')
 
+    console.log("xx")
+    console.log(env.GITHUB_REPOSITORY)
     const _h = new h.HttpClient('foobar')
     const response = await _h.get(
       `https://api.github.com/repos/${repo}/releases/latest`
