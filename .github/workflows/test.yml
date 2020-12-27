@@ -20,3 +20,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
+        env:
+          GITHUB_REPOSITORY: "fwilhe2/ideal-journey"
