@@ -1,12 +1,19 @@
 import * as core from '@actions/core'
+import * as h from '@actions/http-client'
 import {bump} from './bump'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
+    const repo: string = core.getInput('repo')
 
-    const newVersion = bump('1.0.0')
+    const _h = new h.HttpClient('foobar')
+    const response = await _h.get(
+      `https://api.github.com/repos/${repo}/releases/latest`
+    )
+    const body = await response.readBody()
+    const obj: any = JSON.parse(body)
+    const currentVersion = obj.tag_name
+    const newVersion = bump(currentVersion)
 
     core.setOutput('newVersion', newVersion)
   } catch (error) {
