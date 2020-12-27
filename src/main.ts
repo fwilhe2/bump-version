@@ -5,10 +5,6 @@ import {bump} from './bump'
 
 async function run(): Promise<void> {
   try {
-    const repo: string = core.getInput('repo')
-
-    console.log('xx')
-    console.log(env.GITHUB_REPOSITORY)
     const _h = new h.HttpClient('foobar')
     const response = await _h.get(
       `https://api.github.com/repos/${env.GITHUB_REPOSITORY}/releases/latest`

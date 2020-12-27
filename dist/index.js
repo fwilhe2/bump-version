@@ -60,9 +60,6 @@ const bump_1 = __webpack_require__(466);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const repo = core.getInput('repo');
-            console.log('xx');
-            console.log(process_1.env.GITHUB_REPOSITORY);
             const _h = new h.HttpClient('foobar');
             const response = yield _h.get(`https://api.github.com/repos/${process_1.env.GITHUB_REPOSITORY}/releases/latest`);
             const body = yield response.readBody();
