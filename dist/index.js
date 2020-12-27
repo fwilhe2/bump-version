@@ -10,7 +10,9 @@ require('./sourcemap-register.js');module.exports =
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.bump = void 0;
 function bump(version) {
-    return version;
+    const elements = version.split('.');
+    elements[elements.length - 1] = String(Number(elements[elements.length - 1]) + 1);
+    return elements.join('.');
 }
 exports.bump = bump;
 
@@ -57,7 +59,7 @@ function run() {
         try {
             const ms = core.getInput('milliseconds');
             core.debug(`Waiting ${ms} milliseconds ...`); // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-            const newVersion = bump_1.bump("1.0.0");
+            const newVersion = bump_1.bump('1.0.0');
             core.setOutput('newVersion', newVersion);
         }
         catch (error) {
