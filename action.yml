@@ -1,6 +1,6 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Bump Version'
+description: 'Bump version number to aid automated release processes'
+author: 'Florian Wilhelm'
 inputs:
   not_needed: # change this
     required: false
