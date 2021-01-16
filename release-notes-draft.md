@@ -1,2 +1,2 @@
 
-Prepare publish to marketplace
+Publish to GitHub Marketplace
