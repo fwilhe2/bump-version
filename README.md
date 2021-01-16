@@ -27,3 +27,8 @@ Example to update the `patch` version:
         component: patch
     - run: echo ${{ steps.bump.outputs.newVersion }}
 ```
+
+## License
+
+This software is released under the MIT License (MIT), see [LICENSE](./LICENSE) for details.
+
