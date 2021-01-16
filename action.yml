@@ -1,4 +1,4 @@
-name: 'Bump Version'
+name: 'Bump Release Version'
 description: 'Bump version number to aid automated release processes'
 author: 'Florian Wilhelm'
 inputs:
