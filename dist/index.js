@@ -52,7 +52,9 @@ function currentVersion() {
 exports.currentVersion = currentVersion;
 function bump(version) {
     const elements = version.split('.');
-    elements[elements.length - 1] = String(Number(elements[elements.length - 1]) + 1);
+    const indexOfLastElement = elements.length - 1;
+    const currentVersionFragment = Number(elements[indexOfLastElement]);
+    elements[indexOfLastElement] = String(currentVersionFragment + 1);
     return elements.join('.');
 }
 exports.bump = bump;
