@@ -4,7 +4,7 @@ author: 'Florian Wilhelm'
 inputs:
   component:
     required: false
-    description: 'Part of the version number to increment. One of 'major', 'minor', 'patch'.'
+    description: "Part of the version number to increment. One of 'major', 'minor', 'patch'."
     default: 'minor'
 runs:
   using: 'node12'
