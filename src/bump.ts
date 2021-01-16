@@ -14,8 +14,11 @@ export async function currentVersion(): Promise<string> {
 
 export function bump(version: string): string {
   const elements = version.split('.')
-  elements[elements.length - 1] = String(
-    Number(elements[elements.length - 1]) + 1
-  )
+
+  const indexOfLastElement = elements.length - 1
+
+  const currentVersionFragment = Number(elements[indexOfLastElement])
+
+  elements[indexOfLastElement] = String(currentVersionFragment + 1)
   return elements.join('.')
 }
