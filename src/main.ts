@@ -3,7 +3,8 @@ import {bump, currentVersion} from './bump'
 
 async function run(): Promise<void> {
   try {
-    const newVersion = bump(await currentVersion())
+    const component = core.getInput('component')
+    const newVersion = bump(await currentVersion(), component)
 
     core.setOutput('newVersion', newVersion)
   } catch (error) {

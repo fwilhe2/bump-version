@@ -2,10 +2,10 @@ name: 'Bump Version'
 description: 'Bump version number to aid automated release processes'
 author: 'Florian Wilhelm'
 inputs:
-  not_needed: # change this
+  component:
     required: false
-    description: 'input description here'
-    default: 'default value if applicable'
+    description: "Part of the version number to increment. One of 'major', 'minor', 'patch'."
+    default: 'minor'
 runs:
   using: 'node12'
   main: 'dist/index.js'
