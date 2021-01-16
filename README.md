@@ -2,7 +2,9 @@
 
 Gets the latest release version and increases it, useful for automatic releases.
 
-Example:
+## Examples
+
+### Example workflow to release a new version with auto-incrementing version number
 
 ```yaml
     - uses: fwilhe2/bump-version@main
@@ -13,6 +15,8 @@ Example:
       with:
         tag_name: ${{ steps.bump.outputs.newVersion }}
 ```
+
+### Update a specific version component
 
 You can select the version component to update.
 By default, the `minor` version is updated.
@@ -28,7 +32,33 @@ Example to update the `patch` version:
     - run: echo ${{ steps.bump.outputs.newVersion }}
 ```
 
+### Configure version component via `workflow_dispatch`
+
+If you want to select a version number component to update when triggering a release via `workflow_dispatch`, you might want to use [inputs](https://github.blog/changelog/2020-07-06-github-actions-manual-triggers-with-workflow_dispatch/) as in this example.
+
+```yaml
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      component:
+        description: 'Version component to increment'
+        required: true
+        default: 'patch'
+jobs:
+  build:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Get Version Number
+      uses: fwilhe2/bump-version@main
+      id: bump
+      with:
+        component: ${{ github.event.inputs.component }}
+```
+
 ## License
 
 This software is released under the MIT License (MIT), see [LICENSE](./LICENSE) for details.
-
