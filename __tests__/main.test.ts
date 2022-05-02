@@ -2,6 +2,7 @@ import {bump, currentVersion} from '../src/bump'
 import * as process from 'process'
 import * as cp from 'child_process'
 import * as path from 'path'
+import {expect, test} from '@jest/globals'
 
 test('Get current version of repo', async () => {
   process.env['GITHUB_REPOSITORY'] = 'fw-scratch/bump-version-test-v0.0.0'

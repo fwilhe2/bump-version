@@ -8,7 +8,7 @@ async function run(): Promise<void> {
 
     core.setOutput('newVersion', newVersion)
   } catch (error) {
-    core.setFailed(error.message)
+    if (error instanceof Error) core.setFailed(error.message)
   }
 }
 
