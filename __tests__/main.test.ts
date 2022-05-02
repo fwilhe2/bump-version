@@ -8,14 +8,14 @@ test('Get current version of repo', async () => {
   process.env['GITHUB_REPOSITORY'] = 'fw-scratch/bump-version-test-v0.0.0'
 
   const actual = await currentVersion()
-  expect(actual).toEqual('v0.0.2')
+  expect(actual).toEqual('v0.1.0')
 })
 
 test('Get current version of repo2', async () => {
   process.env['GITHUB_REPOSITORY'] = 'fw-scratch/bump-version-test-0.0.0'
 
   const actual = await currentVersion()
-  expect(actual).toEqual('0.0.2')
+  expect(actual).toEqual('0.1.0')
 })
 
 test('Bump semantic three digit version', async () => {
