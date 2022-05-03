@@ -2,6 +2,7 @@ import {bump, currentVersion} from '../src/bump'
 import * as process from 'process'
 import * as cp from 'child_process'
 import * as path from 'path'
+import * as core from '@actions/core'
 import {expect, test} from '@jest/globals'
 
 test('Get current version of repo', async () => {
@@ -51,6 +52,34 @@ test('Bump semantic two digit version with v prefix', async () => {
 test('Bump single digit version', async () => {
   const actual = bump('1', 'major')
   expect(actual).toEqual('2')
+})
+
+test('Bump invalid component sets error code and returns version unchanged', async () => {
+  const actual = bump('1.0.0', 'doesnotexist')
+  expect(process.exitCode).toBe(core.ExitCode.Failure)
+  expect(actual).toEqual('1.0.0')
+})
+
+test('Bump minor version in single digit version sets error and returns version unchanged', async () => {
+  const actual = bump('1', 'minor')
+  expect(process.exitCode).toBe(core.ExitCode.Failure)
+  expect(actual).toEqual('1')
+})
+
+test('Bump patch version in two digit version sets error and returns version unchanged', async () => {
+  const actual = bump('1.0', 'patch')
+  expect(process.exitCode).toBe(core.ExitCode.Failure)
+  expect(actual).toEqual('1.0')
+})
+
+test('Bump semantic two digit version with v prefix and -dev suffix', async () => {
+  const actual = bump('v1.0-dev', 'minor')
+  expect(actual).toEqual('v1.0')
+})
+
+test('Bump semantic three digit version with v prefix and -SNAPSHOT suffix', async () => {
+  const actual = bump('1.0.0-SNAPSHOT', 'minor')
+  expect(actual).toEqual('1.0.0')
 })
 
 // not yet implemented

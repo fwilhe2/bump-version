@@ -1,5 +1,4 @@
 import * as core from '@actions/core'
-
 import * as httpm from '@actions/http-client'
 import {env} from 'process'
 
@@ -17,6 +16,13 @@ export async function currentVersion(): Promise<string> {
 export function bump(version: string, component: string): string {
   const components = ['major', 'minor', 'patch']
 
+  // When version is a non-release version such as 1.0.0-SNAPSHOT, 1.0.0-RC, ..,
+  // we want to strip the non-release qualifier but not increase the number.
+  const versionAndClassifier = version.split('-')
+  if (versionAndClassifier.length > 1) {
+    return versionAndClassifier[0]
+  }
+
   const elements = version.split('.')
   const indexOfElementToUpdate = components.indexOf(component)
 
@@ -24,12 +30,14 @@ export function bump(version: string, component: string): string {
     core.setFailed(
       `Provided version component (${component}) is not one of 'major', 'minor', 'patch'.`
     )
+    return version
   }
 
   if (indexOfElementToUpdate >= elements.length) {
     core.setFailed(
       `Provided version component (${component}) is not part of the provided version (${version}).`
     )
+    return version
   }
 
   const currentVersionFragment = Number(elements[indexOfElementToUpdate])
