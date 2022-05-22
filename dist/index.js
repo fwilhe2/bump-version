@@ -8,11 +8,7 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -85,11 +81,7 @@ exports.bump = bump;
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -122,7 +114,13 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const component = core.getInput('component');
-            const newVersion = (0, bump_1.bump)(yield (0, bump_1.currentVersion)(), component);
+            const versionBefore = yield (0, bump_1.currentVersion)();
+            const newVersion = (0, bump_1.bump)(versionBefore, component);
+            yield core.summary
+                .addHeading('Bump Version Summary :up:')
+                .addRaw(`Old Version: ${versionBefore}`, true)
+                .addRaw(`New Version: ${newVersion}`, true)
+                .write();
             core.setOutput('newVersion', newVersion);
         }
         catch (error) {

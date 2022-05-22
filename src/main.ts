@@ -4,7 +4,14 @@ import {bump, currentVersion} from './bump'
 async function run(): Promise<void> {
   try {
     const component = core.getInput('component')
-    const newVersion = bump(await currentVersion(), component)
+    const versionBefore = await currentVersion()
+    const newVersion = bump(versionBefore, component)
+
+    await core.summary
+      .addHeading('Bump Version Summary :up:')
+      .addRaw(`Old Version: ${versionBefore}`, true)
+      .addRaw(`New Version: ${newVersion}`, true)
+      .write()
 
     core.setOutput('newVersion', newVersion)
   } catch (error) {
