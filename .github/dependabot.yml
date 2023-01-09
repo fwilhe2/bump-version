@@ -4,6 +4,7 @@ updates:
     directory: /
     schedule:
       interval: daily
+      time: "01:00"
 
   - package-ecosystem: npm
     directory: /
