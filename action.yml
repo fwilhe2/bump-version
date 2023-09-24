@@ -7,5 +7,5 @@ inputs:
     description: "Part of the version number to increment. One of 'major', 'minor', 'patch'."
     default: 'minor'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
