@@ -718,9 +718,9 @@
     undici-types "~7.8.0"
 
 "@types/node@20":
-  version "20.19.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.19.0.tgz#7006b097b15dfea06695c3bbdba98b268797f65b"
-  integrity sha512-hfrc+1tud1xcdVTABC2JiomZJEklMcXYNTVtZLAeqTVWD+qL5jkHKT+1lOtqDdGxt+mB53DTtiz673vfjU8D1Q==
+  version "20.19.12"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.19.12.tgz#1ce0874e557c4a2fee6285167a10a8a0b89f8ab8"
+  integrity sha512-lSOjyS6vdO2G2g2CWrETTV3Jz2zlCXHpu1rcubLKpz9oj+z/1CceHlj+yq53W+9zgb98nSov/wjEKYDNauD+Hw==
   dependencies:
     undici-types "~6.21.0"
 
