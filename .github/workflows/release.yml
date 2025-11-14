@@ -1,8 +1,11 @@
 name: Release
 on:
   workflow_dispatch:
-  repository_dispatch:
-    types: release
+    inputs:
+      component:
+        description: 'Version component to increment'
+        required: true
+        default: 'patch'
 
 jobs:
   build:
@@ -15,7 +18,7 @@ jobs:
       uses: fwilhe2/bump-version@main
       id: bump
       with:
-        component: patch
+        component: ${{ github.event.inputs.component }}
     - run: echo New Version Number ${{ steps.bump.outputs.newVersion }}
     - name: Create Release
       run: |
