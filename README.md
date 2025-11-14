@@ -7,13 +7,17 @@ Gets the latest release version and increases it, useful for automatic releases.
 ### Example workflow to release a new version with auto-incrementing version number
 
 ```yaml
-    - uses: fwilhe2/bump-version@main
+    - name: Get Version Number
+      uses: fwilhe2/bump-version@main
       id: bump
-    - run: echo ${{ steps.bump.outputs.newVersion }}
 
-    - uses: actions/create-release@v1
-      with:
-        tag_name: ${{ steps.bump.outputs.newVersion }}
+    - run: echo New Version Number ${{ steps.bump.outputs.newVersion }}
+
+    - name: Create Release
+      run: |
+        gh release create ${{ steps.bump.outputs.newVersion }} --title "Release ${{ steps.bump.outputs.newVersion }}" --generate-notes
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Update a specific version component
