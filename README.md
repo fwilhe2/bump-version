@@ -7,17 +7,17 @@ Gets the latest release version and increases it, useful for automatic releases.
 ### Example workflow to release a new version with auto-incrementing version number
 
 ```yaml
-    - name: Get Version Number
-      uses: fwilhe2/bump-version@main
-      id: bump
+- name: Get Version Number
+  uses: fwilhe2/bump-version@main
+  id: bump
 
-    - run: echo New Version Number ${{ steps.bump.outputs.newVersion }}
+- run: echo New Version Number ${{ steps.bump.outputs.newVersion }}
 
-    - name: Create Release
-      run: |
-        gh release create ${{ steps.bump.outputs.newVersion }} --title "Release ${{ steps.bump.outputs.newVersion }}" --generate-notes
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+- name: Create Release
+  run: |
+    gh release create ${{ steps.bump.outputs.newVersion }} --title "Release ${{ steps.bump.outputs.newVersion }}" --generate-notes
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Update a specific version component
@@ -29,11 +29,11 @@ Valid values are `major`, `minor`, `patch`.
 Example to update the `patch` version:
 
 ```yaml
-    - uses: fwilhe2/bump-version@main
-      id: bump
-      with:
-        component: patch
-    - run: echo ${{ steps.bump.outputs.newVersion }}
+- uses: fwilhe2/bump-version@main
+  id: bump
+  with:
+    component: patch
+- run: echo ${{ steps.bump.outputs.newVersion }}
 ```
 
 ### Configure version component via `workflow_dispatch`
@@ -54,13 +54,13 @@ jobs:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Get Version Number
-      uses: fwilhe2/bump-version@main
-      id: bump
-      with:
-        component: ${{ github.event.inputs.component }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Get Version Number
+        uses: fwilhe2/bump-version@main
+        id: bump
+        with:
+          component: ${{ github.event.inputs.component }}
 ```
 
 ## License

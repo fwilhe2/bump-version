@@ -11,12 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Set Node.js 24.x
+        uses: actions/setup-node@v6.2.0
+        with:
+          node-version: 24.x
+
       - run: |
-          yarn
+          npm ci
       - run: |
-          yarn run all
+          npm run bundle
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Set Node.js 24.x
+        uses: actions/setup-node@v6.2.0
+        with:
+          node-version: 24.x
       - uses: ./

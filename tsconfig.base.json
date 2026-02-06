@@ -14,13 +14,10 @@
     "noImplicitAny": true,
     "noUnusedLocals": true,
     "noUnusedParameters": false,
-    "outDir": "./dist",
     "pretty": true,
     "resolveJsonModule": true,
     "strict": true,
     "strictNullChecks": true,
     "target": "ES2022"
-  },
-  "exclude": ["__fixtures__", "__tests__", "coverage", "dist", "node_modules"],
-  "include": ["src"]
+  }
 }
