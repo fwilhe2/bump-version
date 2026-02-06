@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@actions/core": "^3.0.0",
-    "@actions/http-client": "^3.0.0"
+    "@actions/http-client": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.2",
