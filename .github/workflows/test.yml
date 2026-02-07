@@ -16,10 +16,10 @@ jobs:
         with:
           node-version: 24.x
 
-      - run: |
-          npm ci
-      - run: |
-          npm run bundle
+      - run: npm ci
+      - run: npm run bundle
+      - run: npm run ci-test
+
   test: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
