@@ -7,17 +7,26 @@ Gets the latest release version and increases it, useful for automatic releases.
 ### Example workflow to release a new version with auto-incrementing version number
 
 ```yaml
-- name: Get Version Number
-  uses: fwilhe2/bump-version@main
-  id: bump
+name: Release
+on:
+  workflow_dispatch:
 
-- run: echo New Version Number ${{ steps.bump.outputs.newVersion }}
-
-- name: Create Release
-  run: |
-    gh release create ${{ steps.bump.outputs.newVersion }} --title "Release ${{ steps.bump.outputs.newVersion }}" --generate-notes
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Get Version Number
+        uses: fwilhe2/bump-version@main
+        id: bump
+      - run: echo New Version Number ${{ steps.bump.outputs.newVersion }}
+      - name: Create Release
+        run: |
+          gh release create ${{ steps.bump.outputs.newVersion }} --title "Release ${{ steps.bump.outputs.newVersion }}" --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Update a specific version component
@@ -42,7 +51,6 @@ If you want to select a version number component to update when triggering a rel
 
 ```yaml
 on:
-  push:
   workflow_dispatch:
     inputs:
       component:
@@ -50,12 +58,14 @@ on:
         required: true
         default: 'patch'
 jobs:
-  build:
+  release:
     name: Create Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
       - name: Get Version Number
         uses: fwilhe2/bump-version@main
         id: bump
