@@ -60,3 +60,29 @@ test('Bump single digit version with v prefix', async () => {
   const actual = bump('v1', 'major')
   expect(actual).toEqual('v2')
 })
+
+test('Bump patch on a single digit version (No-op or Error)', () => {
+  // If the shape must be preserved, we can't add a .0.1 if it wasn't there
+  const actual = bump('1', 'patch')
+  expect(actual).toEqual('1')
+})
+
+test('Bump patch on a two digit version', () => {
+  const actual = bump('1.0', 'patch')
+  expect(actual).toEqual('1.0')
+})
+
+test('Bump major with multi-digit numbers', () => {
+  const actual = bump('9.10.11', 'major')
+  expect(actual).toEqual('10.0.0')
+})
+
+test('Bump minor on a version with large patch', () => {
+  const actual = bump('1.9.999', 'minor')
+  expect(actual).toEqual('1.10.0')
+})
+
+test('Bump version starting at 0', () => {
+  const actual = bump('0.0.1', 'major')
+  expect(actual).toEqual('1.0.0')
+})

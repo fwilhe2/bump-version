@@ -1,7 +1,11 @@
-import * as core from '@actions/core'
-
 import * as httpm from '@actions/http-client'
 import {env} from 'process'
+
+type BumpComponent = 'major' | 'minor' | 'patch'
+
+export function isBumpComponent(val: string): val is BumpComponent {
+  return ['major', 'minor', 'patch'].includes(val)
+}
 
 export async function currentVersion(): Promise<string> {
   const httpClient = new httpm.HttpClient('bump-version')
@@ -14,46 +18,34 @@ export async function currentVersion(): Promise<string> {
   return tagName
 }
 
-export function bump(version: string, component: string): string {
-  const components = ['major', 'minor', 'patch']
+/**
+ * Bumps the specified component of a version string while preserving
+ * its 'v' prefix and segment count.
+ */
+export function bump(version: string, component: BumpComponent): string {
+  const hasVPrefix = version.startsWith('v')
+  const numericPart = hasVPrefix ? version.slice(1) : version
 
-  const vPrefix = version.startsWith('v')
+  // Split into segments (e.g., ["1", "0", "0"])
+  const segments = numericPart.split('.').map(Number)
 
-  const elements = version.split('.')
-  const indexOfElementToUpdate = components.indexOf(component)
-
-  if (indexOfElementToUpdate < 0) {
-    core.setFailed(
-      `Provided version component (${component}) is not one of 'major', 'minor', 'patch'.`
-    )
+  // Mapping component to array index
+  const componentMap: Record<BumpComponent, number> = {
+    major: 0,
+    minor: 1,
+    patch: 2
   }
 
-  if (indexOfElementToUpdate >= elements.length) {
-    core.setFailed(
-      `Provided version component (${component}) is not part of the provided version (${version}).`
-    )
+  const index = componentMap[component]
+
+  // Logic: Increment the target segment, then zero out all segments to the right
+  if (segments[index] !== undefined) {
+    segments[index]++
+    for (let i = index + 1; i < segments.length; i++) {
+      segments[i] = 0
+    }
   }
 
-  let currentVersionFragment
-  if (vPrefix && component == 'major') {
-    currentVersionFragment = Number(
-      elements[indexOfElementToUpdate].substring(1)
-    )
-  } else {
-    currentVersionFragment = Number(elements[indexOfElementToUpdate])
-  }
-
-  elements[indexOfElementToUpdate] = String(currentVersionFragment + 1)
-
-  // set all components after the updated component to zero
-  // if we bump minor version of "1.2.3", the next version is "1.3.0", not "1.3.3"
-  for (let i = indexOfElementToUpdate + 1; i < elements.length; i++) {
-    elements[i] = '0'
-  }
-
-  if (vPrefix && component == 'major') {
-    elements[0] = 'v' + elements[0]
-  }
-
-  return elements.join('.')
+  const result = segments.join('.')
+  return hasVPrefix ? `v${result}` : result
 }
