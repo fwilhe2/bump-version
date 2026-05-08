@@ -34,8 +34,8 @@
     "all": "npm run format:write && npm run lint && npm run test && npm run package"
   },
   "dependencies": {
-    "@actions/core": "^3.0.0",
-    "@actions/http-client": "^4.0.0"
+    "@actions/core": "^3.0.1",
+    "@actions/http-client": "^4.0.1"
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.5",
