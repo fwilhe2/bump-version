@@ -35,3 +35,11 @@ updates:
     ignore:
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
+      # TypeScript 6 and 7 cannot be installed at all: typescript-eslint
+      # peers on typescript <6.1.0, and ts-jest on <7, so npm ci fails with
+      # ERESOLVE before anything is built. TypeScript 7 is the native
+      # compiler, which exposes no JavaScript API for ts-jest and
+      # @rollup/plugin-typescript to use. Drop this once the toolchain
+      # follows, see https://github.com/fwilhe2/bump-version/pull/802.
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
