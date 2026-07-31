@@ -61,15 +61,23 @@ test('Bump single digit version with v prefix', async () => {
   expect(actual).toEqual('v2')
 })
 
-test('Bump patch on a single digit version (No-op or Error)', () => {
+test('Bump patch on a single digit version fails', () => {
   // If the shape must be preserved, we can't add a .0.1 if it wasn't there
-  const actual = bump('1', 'patch')
-  expect(actual).toEqual('1')
+  expect(() => bump('1', 'patch')).toThrow(
+    "Cannot bump the patch component of '1', it only has 1 component(s)."
+  )
 })
 
-test('Bump patch on a two digit version', () => {
-  const actual = bump('1.0', 'patch')
-  expect(actual).toEqual('1.0')
+test('Bump patch on a two digit version fails', () => {
+  expect(() => bump('1.0', 'patch')).toThrow(
+    "Cannot bump the patch component of '1.0', it only has 2 component(s)."
+  )
+})
+
+test('Bump minor on a single digit version fails', () => {
+  expect(() => bump('1', 'minor')).toThrow(
+    "Cannot bump the minor component of '1', it only has 1 component(s)."
+  )
 })
 
 test('Bump major with multi-digit numbers', () => {
@@ -85,4 +93,52 @@ test('Bump minor on a version with large patch', () => {
 test('Bump version starting at 0', () => {
   const actual = bump('0.0.1', 'major')
   expect(actual).toEqual('1.0.0')
+})
+
+test('Bump a snapshot version releases it', () => {
+  const actual = bump('1.0.0-SNAPSHOT', 'minor')
+  expect(actual).toEqual('1.0.0')
+})
+
+test('Bump a release candidate releases it', () => {
+  const actual = bump('1.2.3-rc1', 'patch')
+  expect(actual).toEqual('1.2.3')
+})
+
+test('Bump a two digit dev version with v prefix releases it', () => {
+  const actual = bump('v1.0-dev', 'minor')
+  expect(actual).toEqual('v1.0')
+})
+
+test('Bump a version with build metadata strips the metadata', () => {
+  const actual = bump('1.2.3+build.5', 'patch')
+  expect(actual).toEqual('1.2.3')
+})
+
+test('Bump a non numeric version fails', () => {
+  expect(() => bump('not-a-version', 'minor')).toThrow(
+    "Cannot parse 'not-a-version' as a version number"
+  )
+})
+
+test('Bump a version with a non numeric segment fails', () => {
+  expect(() => bump('1.x.0', 'minor')).toThrow(
+    "Cannot parse '1.x.0' as a version number"
+  )
+})
+
+test('Bump an empty version fails', () => {
+  expect(() => bump('', 'major')).toThrow('Cannot bump an empty version.')
+})
+
+test('Bump a bare v prefix fails', () => {
+  expect(() => bump('v', 'major')).toThrow(
+    "Cannot parse 'v' as a version number"
+  )
+})
+
+test('Current version without a repository fails', async () => {
+  delete process.env['GITHUB_REPOSITORY']
+
+  await expect(currentVersion()).rejects.toThrow('GITHUB_REPOSITORY is not set')
 })
