@@ -6,6 +6,10 @@ inputs:
     required: false
     description: "Part of the version number to increment. One of 'major', 'minor', 'patch'."
     default: 'minor'
+  token:
+    required: false
+    description: 'Token used to read the latest release. Required for private repositories.'
+    default: ${{ github.token }}
 runs:
   using: 'node24'
   main: 'dist/index.js'

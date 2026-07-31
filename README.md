@@ -73,6 +73,34 @@ jobs:
           component: ${{ github.event.inputs.component }}
 ```
 
+### Private repositories and GitHub Enterprise Server
+
+The action reads the latest release through the GitHub API.
+It uses `${{ github.token }}` by default, which is enough for private repositories as long as the job grants `contents: read`.
+Pass a different token via the `token` input if you need to.
+
+```yaml
+- uses: fwilhe2/bump-version@main
+  id: bump
+  with:
+    token: ${{ secrets.MY_TOKEN }}
+```
+
+The API host is taken from `GITHUB_API_URL`, so the action works on GitHub Enterprise Server without configuration.
+
+## Behaviour
+
+The version number of the latest release is taken as it is, including a `v` prefix if present, and the requested component is incremented.
+Components to the right of it are set to zero, so bumping the minor component of `v1.2.3` yields `v1.3.0`.
+
+A pre-release version is bumped by releasing it: the qualifier is dropped and no number is incremented, so `1.0.0-SNAPSHOT` and `1.0.0-rc1` both become `1.0.0`.
+
+The action fails with an error message when
+
+- the latest release cannot be read, for example because the repository has no release yet or the token is missing,
+- the tag of the latest release is not a version number, or
+- the version is too short to hold the requested component, for example the `patch` component of `1.0`.
+
 ## License
 
 This software is released under the MIT License (MIT), see [LICENSE](./LICENSE) for details.

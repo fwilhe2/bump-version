@@ -4,9 +4,10 @@ import {bump, currentVersion, isBumpComponent} from './bump'
 async function run(): Promise<void> {
   try {
     const component = core.getInput('component')
+    const token = core.getInput('token')
 
     if (isBumpComponent(component)) {
-      const newVersion = bump(await currentVersion(), component)
+      const newVersion = bump(await currentVersion(token), component)
       core.setOutput('newVersion', newVersion)
     } else {
       core.setFailed(
