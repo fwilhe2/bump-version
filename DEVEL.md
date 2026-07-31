@@ -8,14 +8,14 @@ The `check-dist` workflow rebuilds it and fails when the committed bundle is out
 ## Releasing
 
 The `Release` workflow is triggered manually, creates a release with the next version number, and moves the branch of that major version to the released commit.
-Users reference the action as `fwilhe2/bump-version@v2`, so that branch has to keep pointing at the newest release of its line.
+Users reference the action as `fwilhe2/bump-version@v3`, so that branch has to keep pointing at the newest release of its line.
 
 Anything that can fail a workflow which worked before is a breaking change and belongs into a new major version, including a change of the Node.js version the action runs on, since self hosted runners may not have the new one.
-Cut the new line by creating its first tag and branch by hand, `v3.0` and `v3`, and leave the previous major branch where it is.
+Cut the new line by triggering the workflow with the `major` component, which creates its tag and its branch and leaves the previous major branch where it is.
+Do not create a release by hand: the branch is only moved by the workflow, so a hand-made release leaves its major version branch missing, and the next run bumps from that release instead of the one before it.
 See [fwilhe2/setup-kotlin#651](https://github.com/fwilhe2/setup-kotlin/issues/651) for how this bites users when it is not done.
 
-Release tags carry a `v` prefix and two components, `v2.0`, `v2.1`, and so on, which is why the workflow defaults to incrementing the `minor` component.
-A version of that shape has no `patch` component, and asking for one fails.
+Release tags carry a `v` prefix and three components, `v3.0.0`, `v3.1.0`, and so on.
 
 ## Running the action manually
 

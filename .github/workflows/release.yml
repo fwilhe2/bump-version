@@ -6,6 +6,18 @@ on:
         description: 'Version component to increment'
         required: true
         default: 'minor'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+# Two releases running at once would read the same latest release, bump it to
+# the same number, and race on the tag and the major version branch.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Create Release
@@ -17,26 +29,35 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Get Version Number
-        uses: fwilhe2/bump-version@main
+        uses: fwilhe2/bump-version@v3
         id: bump
         with:
           component: ${{ github.event.inputs.component }}
 
       - run: echo New Version Number ${{ steps.bump.outputs.newVersion }}
 
-      - name: Create Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEW_VERSION: ${{ steps.bump.outputs.newVersion }}
-        run: |
-          gh release create "$NEW_VERSION" --title "Release $NEW_VERSION" --generate-notes
-
       # Users reference the action by major version, so that branch has to
-      # point at the most recent release of its version line.
+      # point at the most recent release of its version line. It moves before
+      # the release is published, because a re-run after a failure here bumps
+      # to the same number again, while a re-run after the release was already
+      # published would bump past it and leave the branch behind for good.
       - name: Move the major version branch to the release
         env:
           NEW_VERSION: ${{ steps.bump.outputs.newVersion }}
         run: |
           major="${NEW_VERSION%%.*}"
-          echo "Moving branch $major to $(git rev-parse --short HEAD)"
-          git push --force origin "HEAD:refs/heads/$major"
+          echo "Moving branch $major to $GITHUB_SHA"
+          git push --force origin "$GITHUB_SHA:refs/heads/$major"
+
+      # --target pins the tag to the commit that was checked out. Without it
+      # the tag lands on whatever the default branch points at right now,
+      # which may have moved past the commit the branch above was set to.
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.bump.outputs.newVersion }}
+        run: |
+          gh release create "$NEW_VERSION" \
+            --target "$GITHUB_SHA" \
+            --title "Release $NEW_VERSION" \
+            --generate-notes

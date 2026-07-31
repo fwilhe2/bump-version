@@ -103,14 +103,15 @@ The action fails with an error message when
 
 ## Versioning
 
-Reference the action by its major version branch, `@v2`, which points at the most recent release of that line and receives compatible changes automatically.
-Pin a release tag such as `@v2.0` to stay on an exact version, or a commit sha if you want to be strict about it.
+Reference the action by its major version branch, `@v3`, which points at the most recent release of that line and receives compatible changes automatically.
+Pin a release tag such as `@v3.0.0` to stay on an exact version, or a commit sha if you want to be strict about it.
 
-Breaking changes go into a new major version, so `@v1` keeps behaving the way it did before the change.
+Breaking changes go into a new major version, so `@v2` keeps behaving the way it did before the change.
 
 | version | notes                                                                                                                                                                |
 | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@v2`   | validates version numbers, releases pre-releases such as `1.0.0-SNAPSHOT`, authenticates against the API, and fails instead of returning a version it could not bump |
+| `@v3`   | validates version numbers, releases pre-releases such as `1.0.0-SNAPSHOT`, authenticates against the API, and fails instead of returning a version it could not bump |
+| `@v2`   | same as `@v3`, kept for the tags cut during the 2.x line                                                                                                             |
 | `@v1`   | last release of the 1.x line, unmaintained                                                                                                                           |
 
 ## License
