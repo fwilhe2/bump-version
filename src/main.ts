@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import {bump, currentVersion, isBumpComponent} from './bump'
 
-async function run(): Promise<void> {
+export async function run(): Promise<void> {
   try {
     const component = core.getInput('component')
     const token = core.getInput('token')
@@ -18,5 +18,3 @@ async function run(): Promise<void> {
     if (error instanceof Error) core.setFailed(error.message)
   }
 }
-
-run()
