@@ -1,7 +1,8 @@
 inputs:
-  version:
+  component:
     type: string
-  install-native:
-    type: boolean
-  script:
+  token:
+    type: string
+outputs:
+  newVersion:
     type: string

@@ -10,6 +10,9 @@ inputs:
     required: false
     description: 'Token used to read the latest release. Required for private repositories.'
     default: ${{ github.token }}
+outputs:
+  newVersion:
+    description: 'The bumped version number, carrying the prefix of the latest release tag.'
 runs:
   using: 'node24'
   main: 'dist/index.js'
