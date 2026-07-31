@@ -1,144 +1,111 @@
-import {bump, currentVersion} from '../src/bump'
-import * as process from 'process'
-import {expect, test} from '@jest/globals'
+import * as fs from 'fs'
+import * as os from 'os'
+import * as path from 'path'
+import * as httpm from '@actions/http-client'
+import {run} from '../src/main'
+import {afterEach, beforeEach, expect, jest, test} from '@jest/globals'
 
-test('Get current version of repo', async () => {
-  process.env['GITHUB_REPOSITORY'] = 'fw-scratch/bump-version-test-v0.0.0'
+let outputFile: string
+let errors: string[]
+let exitCodeBefore: number | string | undefined
 
-  const actual = await currentVersion()
-  expect(actual).toEqual('v0.1.0')
+/**
+ * Runs the action against a fake latest release and returns what it wrote to
+ * the output file, in the same way the runner would read it.
+ */
+async function runWith(inputs: {[key: string]: string}, tagName = 'v1.2.3') {
+  jest.spyOn(httpm.HttpClient.prototype, 'get').mockResolvedValue({
+    message: {statusCode: 200, headers: {}},
+    readBody: async () => JSON.stringify({tag_name: tagName})
+  } as unknown as httpm.HttpClientResponse)
+
+  for (const [name, value] of Object.entries(inputs)) {
+    process.env[`INPUT_${name.toUpperCase()}`] = value
+  }
+
+  await run()
+
+  return fs.readFileSync(outputFile, 'utf8')
+}
+
+beforeEach(() => {
+  outputFile = path.join(
+    fs.mkdtempSync(path.join(os.tmpdir(), 'bump-version-')),
+    'output'
+  )
+  fs.writeFileSync(outputFile, '')
+  process.env['GITHUB_OUTPUT'] = outputFile
+  process.env['GITHUB_REPOSITORY'] = 'fwilhe2/bump-version'
+  delete process.env['INPUT_COMPONENT']
+  delete process.env['INPUT_TOKEN']
+
+  errors = []
+  jest.spyOn(process.stdout, 'write').mockImplementation(line => {
+    if (String(line).startsWith('::error::')) errors.push(String(line).trim())
+    return true
+  })
+
+  // setFailed sets the exit code of the whole process, which would fail the
+  // test run itself.
+  exitCodeBefore = process.exitCode
 })
 
-test('Get current version of repo2', async () => {
-  process.env['GITHUB_REPOSITORY'] = 'fw-scratch/bump-version-test-0.0.0'
-
-  const actual = await currentVersion()
-  expect(actual).toEqual('0.1.0')
+afterEach(() => {
+  jest.restoreAllMocks()
+  process.exitCode = exitCodeBefore
+  fs.rmSync(path.dirname(outputFile), {recursive: true, force: true})
 })
 
-test('Bump semantic three digit version', async () => {
-  const actual = bump('1.0.0', 'patch')
-  expect(actual).toEqual('1.0.1')
+test('Writes the bumped version to the output', async () => {
+  const output = await runWith({component: 'minor'})
+
+  expect(output).toContain('newVersion')
+  expect(output).toContain('v1.3.0')
+  expect(process.exitCode).not.toBe(1)
 })
 
-test('Bump minor semantic three digit version', async () => {
-  const actual = bump('1.2.3', 'minor')
-  expect(actual).toEqual('1.3.0')
+test('Bumps the component that was asked for', async () => {
+  expect(await runWith({component: 'major'})).toContain('v2.0.0')
+  expect(await runWith({component: 'patch'})).toContain('v1.2.4')
 })
 
-test('Bump semantic three digit version with v prefix', async () => {
-  const actual = bump('v1.0.0', 'patch')
-  expect(actual).toEqual('v1.0.1')
-})
-
-test('Bump semantic three digit version with v prefix major', async () => {
-  const actual = bump('v1.0.0', 'major')
-  expect(actual).toEqual('v2.0.0')
-})
-
-test('Bump minor semantic three digit version with v prefix', async () => {
-  const actual = bump('v1.2.3', 'minor')
-  expect(actual).toEqual('v1.3.0')
-})
-
-test('Bump semantic two digit version', async () => {
-  const actual = bump('1.0', 'minor')
-  expect(actual).toEqual('1.1')
-})
-
-test('Bump semantic two digit version with v prefix', async () => {
-  const actual = bump('v1.0', 'minor')
-  expect(actual).toEqual('v1.1')
-})
-
-test('Bump single digit version', async () => {
-  const actual = bump('1', 'major')
-  expect(actual).toEqual('2')
-})
-
-test('Bump single digit version with v prefix', async () => {
-  const actual = bump('v1', 'major')
-  expect(actual).toEqual('v2')
-})
-
-test('Bump patch on a single digit version fails', () => {
-  // If the shape must be preserved, we can't add a .0.1 if it wasn't there
-  expect(() => bump('1', 'patch')).toThrow(
-    "Cannot bump the patch component of '1', it only has 1 component(s)."
+test('Releases a pre-release of the latest release', async () => {
+  expect(await runWith({component: 'minor'}, '2.0.0-SNAPSHOT')).toContain(
+    '2.0.0'
   )
 })
 
-test('Bump patch on a two digit version fails', () => {
-  expect(() => bump('1.0', 'patch')).toThrow(
-    "Cannot bump the patch component of '1.0', it only has 2 component(s)."
+test('Fails on an unknown component', async () => {
+  const output = await runWith({component: 'bogus'})
+
+  expect(errors).toEqual([
+    '::error::Invalid component: bogus. Use major, minor, or patch.'
+  ])
+  expect(output).toEqual('')
+  expect(process.exitCode).toBe(1)
+})
+
+test('Fails when the version cannot be bumped', async () => {
+  const output = await runWith({component: 'patch'}, '1.0')
+
+  expect(errors).toEqual([
+    "::error::Cannot bump the patch component of '1.0', it only has 2 component(s)."
+  ])
+  expect(output).toEqual('')
+  expect(process.exitCode).toBe(1)
+})
+
+test('Fails when the latest release cannot be read', async () => {
+  jest.spyOn(httpm.HttpClient.prototype, 'get').mockResolvedValue({
+    message: {statusCode: 404, headers: {}},
+    readBody: async () => JSON.stringify({message: 'Not Found'})
+  } as unknown as httpm.HttpClientResponse)
+  process.env['INPUT_COMPONENT'] = 'minor'
+
+  await run()
+
+  expect(errors[0]).toContain(
+    'No latest release found for fwilhe2/bump-version'
   )
-})
-
-test('Bump minor on a single digit version fails', () => {
-  expect(() => bump('1', 'minor')).toThrow(
-    "Cannot bump the minor component of '1', it only has 1 component(s)."
-  )
-})
-
-test('Bump major with multi-digit numbers', () => {
-  const actual = bump('9.10.11', 'major')
-  expect(actual).toEqual('10.0.0')
-})
-
-test('Bump minor on a version with large patch', () => {
-  const actual = bump('1.9.999', 'minor')
-  expect(actual).toEqual('1.10.0')
-})
-
-test('Bump version starting at 0', () => {
-  const actual = bump('0.0.1', 'major')
-  expect(actual).toEqual('1.0.0')
-})
-
-test('Bump a snapshot version releases it', () => {
-  const actual = bump('1.0.0-SNAPSHOT', 'minor')
-  expect(actual).toEqual('1.0.0')
-})
-
-test('Bump a release candidate releases it', () => {
-  const actual = bump('1.2.3-rc1', 'patch')
-  expect(actual).toEqual('1.2.3')
-})
-
-test('Bump a two digit dev version with v prefix releases it', () => {
-  const actual = bump('v1.0-dev', 'minor')
-  expect(actual).toEqual('v1.0')
-})
-
-test('Bump a version with build metadata strips the metadata', () => {
-  const actual = bump('1.2.3+build.5', 'patch')
-  expect(actual).toEqual('1.2.3')
-})
-
-test('Bump a non numeric version fails', () => {
-  expect(() => bump('not-a-version', 'minor')).toThrow(
-    "Cannot parse 'not-a-version' as a version number"
-  )
-})
-
-test('Bump a version with a non numeric segment fails', () => {
-  expect(() => bump('1.x.0', 'minor')).toThrow(
-    "Cannot parse '1.x.0' as a version number"
-  )
-})
-
-test('Bump an empty version fails', () => {
-  expect(() => bump('', 'major')).toThrow('Cannot bump an empty version.')
-})
-
-test('Bump a bare v prefix fails', () => {
-  expect(() => bump('v', 'major')).toThrow(
-    "Cannot parse 'v' as a version number"
-  )
-})
-
-test('Current version without a repository fails', async () => {
-  delete process.env['GITHUB_REPOSITORY']
-
-  await expect(currentVersion()).rejects.toThrow('GITHUB_REPOSITORY is not set')
+  expect(process.exitCode).toBe(1)
 })

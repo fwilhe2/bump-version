@@ -29,3 +29,11 @@ jobs:
         with:
           node-version: 24.x
       - uses: ./
+        id: bump
+
+      - name: Check the action produced a version number
+        env:
+          NEW_VERSION: ${{ steps.bump.outputs.newVersion }}
+        run: |
+          echo "Bumped to $NEW_VERSION"
+          [[ "$NEW_VERSION" =~ ^v?[0-9]+(\.[0-9]+)+$ ]]
