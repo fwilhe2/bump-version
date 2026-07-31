@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Get Version Number
-        uses: fwilhe2/bump-version@main
+        uses: fwilhe2/bump-version@v2
         id: bump
       - run: echo New Version Number ${{ steps.bump.outputs.newVersion }}
       - name: Create Release
@@ -38,7 +38,7 @@ Valid values are `major`, `minor`, `patch`.
 Example to update the `patch` version:
 
 ```yaml
-- uses: fwilhe2/bump-version@main
+- uses: fwilhe2/bump-version@v2
   id: bump
   with:
     component: patch
@@ -67,7 +67,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Get Version Number
-        uses: fwilhe2/bump-version@main
+        uses: fwilhe2/bump-version@v2
         id: bump
         with:
           component: ${{ github.event.inputs.component }}
@@ -80,7 +80,7 @@ It uses `${{ github.token }}` by default, which is enough for private repositori
 Pass a different token via the `token` input if you need to.
 
 ```yaml
-- uses: fwilhe2/bump-version@main
+- uses: fwilhe2/bump-version@v2
   id: bump
   with:
     token: ${{ secrets.MY_TOKEN }}
@@ -100,6 +100,18 @@ The action fails with an error message when
 - the latest release cannot be read, for example because the repository has no release yet or the token is missing,
 - the tag of the latest release is not a version number, or
 - the version is too short to hold the requested component, for example the `patch` component of `1.0`.
+
+## Versioning
+
+Reference the action by its major version branch, `@v2`, which points at the most recent release of that line and receives compatible changes automatically.
+Pin a release tag such as `@v2.0` to stay on an exact version, or a commit sha if you want to be strict about it.
+
+Breaking changes go into a new major version, so `@v1` keeps behaving the way it did before the change.
+
+| version | notes                                                                                                                                                                |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@v2`   | validates version numbers, releases pre-releases such as `1.0.0-SNAPSHOT`, authenticates against the API, and fails instead of returning a version it could not bump |
+| `@v1`   | last release of the 1.x line, unmaintained                                                                                                                           |
 
 ## License
 

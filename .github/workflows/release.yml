@@ -5,7 +5,7 @@ on:
       component:
         description: 'Version component to increment'
         required: true
-        default: 'patch'
+        default: 'minor'
 jobs:
   build:
     name: Create Release
@@ -25,7 +25,18 @@ jobs:
       - run: echo New Version Number ${{ steps.bump.outputs.newVersion }}
 
       - name: Create Release
-        run: |
-          gh release create ${{ steps.bump.outputs.newVersion }} --title "Release ${{ steps.bump.outputs.newVersion }}" --generate-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.bump.outputs.newVersion }}
+        run: |
+          gh release create "$NEW_VERSION" --title "Release $NEW_VERSION" --generate-notes
+
+      # Users reference the action by major version, so that branch has to
+      # point at the most recent release of its version line.
+      - name: Move the major version branch to the release
+        env:
+          NEW_VERSION: ${{ steps.bump.outputs.newVersion }}
+        run: |
+          major="${NEW_VERSION%%.*}"
+          echo "Moving branch $major to $(git rev-parse --short HEAD)"
+          git push --force origin "HEAD:refs/heads/$major"
